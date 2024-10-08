@@ -25,7 +25,7 @@
 
             <div class="content-wrapper">
                 <section class="loan-form step-1" id="step-1-form">
-                    <form action="#" id="loan-form">
+                    <form method="post" id="loan-form">
                         <div class="form-group">
                             <label for="project">Mon projet</label>
                             <select id="project">
@@ -79,7 +79,7 @@
                 </section>
 
                 <section class="loan-form step-2" id="step-2-form" style="display: none;">
-                    <form id="contact-form">
+                    <form id="contact-form" method="post">
                         <div class="form-group-step2">
                             <input type="email" id="email" placeholder=" " required>
                             <label for="email">Email*</label>
@@ -96,7 +96,7 @@
 
 
                 <section class="loan-form step-3" id="step-3-form" style="display: none;">
-                    <form id="personal-info-form">
+                    <form id="personal-info-form" method="post">
                         <label>Civilité</label>
                         <div class="radio-group">
                             <label>
@@ -159,11 +159,11 @@
 
                         <div id="additional-inputs" style="display: none;">
                             <div class="form-group-step2">
-                                <input type="text" id="additional-input1" placeholder="" required>
+                                <input type="text" id="additional-input1" placeholder="" >
                                 <label for="additional-input1"> Mensualité crédit Immo (net en DH)*</label>
                             </div>
                             <div class="form-group-step2">
-                                <input type="text" id="additional-input2" placeholder=" " required>
+                                <input type="text" id="additional-input2" placeholder=" " >
                                 <label for="additional-input2"> Mensualité autres crédits (net en DH)*</label>
                             </div>
                         </div>
@@ -177,10 +177,9 @@
 
 
 
-                        <button type="submit" class="btn-submit">Demande ce crédit</button>
+                        <button type="submit" class="btn-submit" id="final-submit-button">Demande ce crédit</button>
                     </form>
                 </section>
-
 
 
             </div>

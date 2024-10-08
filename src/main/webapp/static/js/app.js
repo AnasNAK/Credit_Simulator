@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const step3Form = document.getElementById('step-3-form');
     const recapSection = document.querySelector('.recap-content');
     const recapContainer = document.querySelector('.recap');
+
     const step1Indicator = document.getElementById('step-1-indicator');
     const step2Indicator = document.getElementById('step-2-indicator');
     const step3Indicator = document.getElementById('step-3-indicator');
@@ -18,25 +19,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const durationRange = document.getElementById('duration-range');
     const monthlyRange = document.getElementById('monthly-range');
 
+    const formGroup = document.querySelector('.form-group');
     const monthlyLabel = document.createElement('div');
     monthlyLabel.classList.add('monthly-label');
-    document.querySelector('.form-group').appendChild(monthlyLabel);
+    formGroup.appendChild(monthlyLabel);
 
     const interestRate = 0.05;
 
     function calculateMonthly(amount, duration) {
         if (!amount || !duration) return 0;
         const monthlyRate = interestRate / 12;
-        const monthly = (amount * monthlyRate * Math.pow(1 + monthlyRate, duration)) /
-            (Math.pow(1 + monthlyRate, duration) - 1);
+        const monthly = (amount * monthlyRate * Math.pow(1 + monthlyRate, duration)) / (Math.pow(1 + monthlyRate, duration) - 1);
         return isNaN(monthly) || monthly <= 0 ? 0 : monthly.toFixed(2);
     }
 
     function updateMonthlyLabel(value) {
         monthlyLabel.textContent = `${value} DH`;
         const rangeWidth = monthlyRange.offsetWidth;
-        const thumbPosition = (monthlyRange.value - monthlyRange.min) /
-            (monthlyRange.max - monthlyRange.min) * rangeWidth;
+        const thumbPosition = (monthlyRange.value - monthlyRange.min) / (monthlyRange.max - monthlyRange.min) * rangeWidth;
         monthlyLabel.style.left = `${thumbPosition}px`;
     }
 
@@ -49,11 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
             input.value = range.value;
             callback();
         });
-    }
-
-    function syncMonthlyAndDuration() {
-        monthlyInput.value = monthlyRange.value;
-        updateDurationBasedOnMonthly();
     }
 
     function updateDurationBasedOnMonthly() {
@@ -77,18 +72,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const duration = parseFloat(durationInput.value);
         const monthlyValue = calculateMonthly(amount, duration);
 
-        monthlyInput.value = monthlyValue;
-        monthlyRange.value = monthlyValue;
-        updateMonthlyLabel(monthlyValue);
+        if (monthlyValue) {
+            monthlyInput.value = monthlyValue;
+            monthlyRange.value = monthlyValue;
+            updateMonthlyLabel(monthlyValue);
+        }
     }
 
     syncInputs(amountInput, amountRange, updateMonthlyWhenAmountOrDurationChanges);
     syncInputs(durationInput, durationRange, updateMonthlyWhenAmountOrDurationChanges);
-    syncInputs(monthlyInput, monthlyRange, syncMonthlyAndDuration);
+    syncInputs(monthlyInput, monthlyRange, () => {
+        monthlyInput.value = monthlyRange.value;
+        updateDurationBasedOnMonthly();
+    });
 
     updateMonthlyWhenAmountOrDurationChanges();
 
-    document.getElementById('loan-form').addEventListener('submit', function (e) {
+    const loanForm = document.getElementById('loan-form');
+    loanForm.addEventListener('submit', function (e) {
         e.preventDefault();
 
         const amountValue = amountInput.value;
@@ -101,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <h4 class="recap-first p">Mon Projet</h4>
             <p class="recap-project p">${selectedProject}</p><br><br>
             <h4 class="recap-title p">Détail de mon crédit</h4>
-            <p class="recap-profession p s "><strong>Vous êtes:</strong> <span class="recap-value">${selectedProfession}</span></p>
+            <p class="recap-profession p s"><strong>Vous êtes:</strong> <span class="recap-value">${selectedProfession}</span></p>
             <hr>
             <p class="recap-amount p s"><strong>Montant:</strong> <span class="recap-value">${amountValue} DH</span></p>
             <hr>
@@ -119,7 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
         step2Indicator.classList.add('active');
     });
 
-    document.getElementById('contact-form').addEventListener('submit', function (e) {
+    const contactForm = document.getElementById('contact-form');
+    contactForm.addEventListener('submit', function (e) {
         e.preventDefault();
 
         const emailValue = document.getElementById('email').value;
@@ -128,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         recapSection.innerHTML += `
             <h4 class="recap-perso p">Coordonnées et infos personnelles</h4>
             <p class="recap-email p s"><strong>Email:</strong> <span class="recap-value">${emailValue}</span></p>
-            <p class="recap-phone p s"><strong>Téléphone:</strong><span class="recap-value">${phoneValue}</span> </p>
+            <p class="recap-phone p s"><strong>Téléphone:</strong> <span class="recap-value">${phoneValue}</span></p>
         `;
 
         step2Form.style.display = 'none';
@@ -149,11 +151,107 @@ document.addEventListener('DOMContentLoaded', () => {
         radio.addEventListener('change', () => {
             if (radio.value === 'Oui') {
                 additionalInputsContainer.style.display = 'block';
+                additionalInput1.required = true;
+                additionalInput2.required = true;
             } else {
                 additionalInputsContainer.style.display = 'none';
                 additionalInput1.value = '';
                 additionalInput2.value = '';
+                additionalInput1.required = false;
+                additionalInput2.required = false;
             }
         });
     });
+
+    function showFlashMessage(message, type) {
+        const flashMessageContainer = document.createElement('div');
+        flashMessageContainer.textContent = message;
+        flashMessageContainer.className = `flash-message ${type}`;
+
+        flashMessageContainer.style.position = 'fixed';
+        flashMessageContainer.style.top = '20px';
+        flashMessageContainer.style.right = '20px';
+        flashMessageContainer.style.zIndex = '1000';
+        flashMessageContainer.style.padding = '10px';
+        flashMessageContainer.style.color = 'white';
+        flashMessageContainer.style.backgroundColor = type === 'error' ? 'red' : 'green';
+        flashMessageContainer.style.borderRadius = '5px';
+        flashMessageContainer.style.opacity = '0.9';
+
+        document.body.appendChild(flashMessageContainer);
+
+        // Remove flash message after 5 seconds
+        setTimeout(() => {
+            document.body.removeChild(flashMessageContainer);
+        }, 5000);
+    }
+
+// Check for flash message on page load
+    window.addEventListener('load', () => {
+        const flashMessage = sessionStorage.getItem('flashMessage');
+        if (flashMessage) {
+            showFlashMessage(flashMessage, 'success'); // You can also pass 'error' based on your needs
+            sessionStorage.removeItem('flashMessage'); // Clear the flash message after displaying
+        }
+    });
+
+// Fetch data and submit form
+    const finalSubmitButton = document.getElementById('final-submit-button');
+    finalSubmitButton.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        const step3FormElement = step3Form.querySelector('form');
+
+        if (!step3FormElement.checkValidity()) {
+            console.log('Step 3 Form is invalid');
+            step3FormElement.reportValidity();
+            return;
+        }
+
+        const data = {
+            amount: amountInput.value,
+            duration: durationInput.value,
+            monthly: monthlyInput.value,
+            project: projectSelect.options[projectSelect.selectedIndex].text,
+            profession: professionSelect.options[professionSelect.selectedIndex].text,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            civilite: document.querySelector('input[name="civilite"]:checked').value,
+            nom: document.getElementById('nom').value,
+            prenom: document.getElementById('prenom').value,
+            CIN: document.getElementById('CIN').value,
+            datenaissance: document.getElementById('datenaissance').value,
+            datedembauche: document.getElementById('datedembauche').value,
+            totalrevenue: document.getElementById('totalrevenue').value,
+            credits: document.querySelector('input[name="credits"]:checked').value,
+            creditImmo: additionalInputsContainer.style.display !== 'none' ? additionalInput1.value : null,
+            otherCredits: additionalInputsContainer.style.display !== 'none' ? additionalInput2.value : null,
+        };
+
+        const urlEncodedData = new URLSearchParams(data).toString();
+
+        fetch('/Simulator', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: urlEncodedData,
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status === 'success') {
+                    sessionStorage.setItem('flashMessage', 'Your request was successfully submitted!');
+                    location.reload();
+                } else {
+                    sessionStorage.setItem('flashMessage', result.message || 'An error occurred while processing your request.');
+                    showFlashMessage(result.message || 'An error occurred while processing your request.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error: ', error);
+                sessionStorage.setItem('flashMessage', 'An unexpected error occurred. Please try again later.');
+                showFlashMessage('An unexpected error occurred. Please try again later.', 'error');
+            });
+    });
+
 });
