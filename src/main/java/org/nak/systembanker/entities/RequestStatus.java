@@ -16,7 +16,7 @@ public class RequestStatus {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "demande_id")
+    @JoinColumn(name = "request_id")
     private Request request;
 
     @ManyToOne

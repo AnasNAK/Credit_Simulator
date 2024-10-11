@@ -19,5 +19,5 @@ public class Status {
     private String statusName;
 
     @OneToMany(mappedBy = "status", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<RequestStatus> demandeStatuts = new HashSet<>();
+    private Set<RequestStatus> requestStatuses = new HashSet<>();
 }

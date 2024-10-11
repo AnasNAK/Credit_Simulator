@@ -180,22 +180,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.body.appendChild(flashMessageContainer);
 
-        // Remove flash message after 5 seconds
         setTimeout(() => {
             document.body.removeChild(flashMessageContainer);
         }, 5000);
     }
 
-// Check for flash message on page load
     window.addEventListener('load', () => {
         const flashMessage = sessionStorage.getItem('flashMessage');
         if (flashMessage) {
-            showFlashMessage(flashMessage, 'success'); // You can also pass 'error' based on your needs
-            sessionStorage.removeItem('flashMessage'); // Clear the flash message after displaying
+            showFlashMessage(flashMessage, 'success');
+            sessionStorage.removeItem('flashMessage');
         }
     });
 
-// Fetch data and submit form
     const finalSubmitButton = document.getElementById('final-submit-button');
     finalSubmitButton.addEventListener('click', (e) => {
         e.preventDefault();
@@ -241,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(result => {
                 if (result.status === 'success') {
                     sessionStorage.setItem('flashMessage', 'Your request was successfully submitted!');
-                    location.reload();
+                    // location.reload();
                 } else {
                     sessionStorage.setItem('flashMessage', result.message || 'An error occurred while processing your request.');
                     showFlashMessage(result.message || 'An error occurred while processing your request.', 'error');
